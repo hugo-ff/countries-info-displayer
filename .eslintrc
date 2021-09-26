@@ -1,0 +1,51 @@
+{
+	"env": {
+		"browser": true,
+		"es2021": true
+	},
+	"extends": [
+		"plugin:react/recommended",
+		"airbnb",
+		"plugin:json/recommended",
+		"plugin:prettier/recommended"
+	],
+	"plugins": ["react", "prettier"],
+	"overrides": [
+		{
+			"files": ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
+			"extends": [
+				"plugin:jest/recommended",
+				"plugin:testing-library/react",
+				"plugin:jest-dom/recommended"
+			]
+		}
+	],
+	"parser": "@babel/eslint-parser",
+	"parserOptions": {
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"ecmaVersion": 12,
+		"sourceType": "module"
+	},
+	"rules": {
+		"prettier/prettier": "error",
+		"react/react-in-jsx-scope": "off",
+		"react/jsx-filename-extension": ["off", { "extensions": [".js", ".jsx"] }],
+		"import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+		"react/jsx-props-no-spreading": "off",
+		"jsx-a11y/label-has-associated-control": [
+			"error",
+			{
+				"required": {
+					"some": ["nesting", "id"]
+				}
+			}
+		]
+	},
+	"settings": {
+		"import/resolver": {
+			"babel-module": {}
+		}
+	}
+}

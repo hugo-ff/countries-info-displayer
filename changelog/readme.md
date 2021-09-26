@@ -1,0 +1,3 @@
+- Create a md file with the number / name of the task in this folder with the features added, changed, fixed or removed in the same way as in the CHANGELOG.md.
+- The contents of this file will be compiled in the CHANGELOG.md file when this branch is merged to master.
+- The developer responsible for merge must delete the file and add the content to the changelog adding the id of the pull request and user.

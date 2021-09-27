@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { Link } from 'react-router-dom';
+import validateArray from 'utils';
 import { GET_COUNTRIES, GET_CONTINENTS } from '../../../apollo/queries/queries';
 
 const Countries = () => {
@@ -26,11 +27,11 @@ const Countries = () => {
 	const { countries } = getCountriesData || {};
 
 	const renderCountries =
-		countries &&
+		validateArray(countries) &&
 		countries
 			.filter(country => country.name.toLowerCase().startsWith(search.toLowerCase()))
 			.filter(country => {
-				if (!currencyFilter.length) return country;
+				if (!validateArray(currencyFilter)) return country;
 				const { currency: countryCurrency } = country;
 				if (countryCurrency && countryCurrency.includes(',')) {
 					const currencyArr = countryCurrency.split(',');
@@ -42,11 +43,12 @@ const Countries = () => {
 				const {
 					continent: { name: continentName },
 				} = country;
-				if (!continentsFilter.length) return country;
+				if (!validateArray(continentsFilter)) return country;
 				return continentsFilter.find(continent => continent === continentName);
 			})
 			.map(country => {
 				const {
+					code,
 					name,
 					continent: { name: continentName },
 					currency,
@@ -57,7 +59,7 @@ const Countries = () => {
 
 				return (
 					<li key={id} className={`country-card--${id}`}>
-						<Link to={`/country/${id}`}>
+						<Link to={`/country/${code.toLowerCase()}`}>
 							<p>{emoji}</p>
 							<div>
 								<h2>{name}</h2>
@@ -72,7 +74,7 @@ const Countries = () => {
 	const { continents } = getContinentsData || {};
 
 	const renderContinents =
-		continents &&
+		validateArray(continents) &&
 		continents.map(continent => {
 			const { name: continentName, code } = continent;
 
@@ -95,7 +97,7 @@ const Countries = () => {
 		});
 
 	const currencies =
-		countries &&
+		validateArray(countries) &&
 		countries
 			.reduce((accum, current) => {
 				const { currency } = current;
@@ -108,7 +110,7 @@ const Countries = () => {
 			.filter((value, i, arr) => arr.indexOf(value) === i);
 
 	const renderCurrencyFilter =
-		currencies &&
+		validateArray(currencies) &&
 		currencies.map(currency => (
 			<label htmlFor={currency} key={currency}>
 				<input
@@ -117,7 +119,8 @@ const Countries = () => {
 					name="currency"
 					onChange={e => {
 						if (e.target.checked) return setCurrencyFilter([...currencyFilter, currency]);
-						const popFromFilters = currencyFilter.filter(c => c !== currency);
+						const popFromFilters =
+							validateArray(currencyFilter) && currencyFilter.filter(c => c !== currency);
 						return setCurrencyFilter(popFromFilters);
 					}}
 				/>

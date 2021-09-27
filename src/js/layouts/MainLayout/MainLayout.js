@@ -1,24 +1,18 @@
 import { element } from 'prop-types';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
+import client from 'apollo/client';
 import styles from './styles';
 
-const API_URL = 'https://countries.trevorblades.com/';
-
-const client = new ApolloClient({
-	uri: API_URL,
-	cache: new InMemoryCache(),
-});
-
 const MainLayout = ({ children }) => (
-	<BrowserRouter>
-		<ApolloProvider client={client}>
+	<ApolloProvider client={client}>
+		<BrowserRouter>
 			<ChakraProvider>
 				<styles.MainLayout>{children}</styles.MainLayout>
 			</ChakraProvider>
-		</ApolloProvider>
-	</BrowserRouter>
+		</BrowserRouter>
+	</ApolloProvider>
 );
 
 MainLayout.propTypes = {

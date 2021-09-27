@@ -1,26 +1,28 @@
 import { gql } from '@apollo/client';
 
 export const GET_COUNTRIES = gql`
-	query {
-		countries {
+	query countries($filter: CountryFilterInput) {
+		countries(filter: $filter) {
 			code
 			name
 			currency
-			continent {
-				name
-			}
 			languages {
+				code
 				name
 			}
 			capital
 			emoji
+			continent {
+				name
+			}
 		}
 	}
 `;
 
 export const GET_CONTINENTS = gql`
-	query {
-		continents {
+	query continents($filter: ContinentFilterInput) {
+		continents(filter: $filter) {
+			code
 			name
 		}
 	}

@@ -28,7 +28,8 @@
 					"theme": "./src/js/theme",
 					"utils": "./src/js/utils",
 					"hooks": "./src/js/hooks",
-					"pages": "./src/js/pages"
+					"pages": "./src/js/pages",
+					"apollo": "./src/apollo"
 				}
 			}
 		],

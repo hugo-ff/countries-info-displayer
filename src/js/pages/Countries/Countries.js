@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_COUNTRIES, GET_CONTINENTS } from '../../../apollo/queries/queries';
 
 const Countries = () => {
+	const [search, setSearch] = useState('');
+
 	const {
 		loading: getCountriesLoading,
 		error: getCountriesError,
@@ -18,29 +21,32 @@ const Countries = () => {
 	if (getCountriesError || getContinentsError) return <p>Error</p>;
 
 	const { countries } = getCountriesData || {};
+
 	const renderCountries =
 		countries &&
-		countries.map(country => {
-			const {
-				name,
-				continent: { name: continentName },
-				currency,
-				emoji,
-			} = country;
+		countries
+			.filter(country => country.name.toLowerCase().startsWith(search.toLowerCase()))
+			.map(country => {
+				const {
+					name,
+					continent: { name: continentName },
+					currency,
+					emoji,
+				} = country;
 
-			const id = name.toLowerCase().replaceAll(' ', '-');
+				const id = name.toLowerCase().replaceAll(' ', '-');
 
-			return (
-				<li key={id} className={`country-card--${id}`}>
-					<p>{emoji}</p>
-					<div>
-						<h2>{name}</h2>
-						<h3>{continentName}</h3>
-						<h4>{currency}</h4>
-					</div>
-				</li>
-			);
-		});
+				return (
+					<li key={id} className={`country-card--${id}`}>
+						<p>{emoji}</p>
+						<div>
+							<h2>{name}</h2>
+							<h3>{continentName}</h3>
+							<h4>{currency}</h4>
+						</div>
+					</li>
+				);
+			});
 
 	const { continents } = getContinentsData || {};
 
@@ -78,13 +84,20 @@ const Countries = () => {
 
 	return (
 		<>
+			<input
+				type="search"
+				name="search"
+				placeholder="Search"
+				onChange={e => setSearch(e.target.value)}
+				value={search}
+			/>
 			<div>Currency filter</div>
 			<div role="group">{renderCurrencyFilter}</div>
 			<div>Continents</div>
 			<div role="group">{renderContinents}</div>
 			<div>Countries</div>
 			<section>
-				<ul>{renderCountries}</ul>
+				{renderCountries.length ? <ul>{renderCountries}</ul> : <div>Ups! Country not found</div>}
 			</section>
 		</>
 	);

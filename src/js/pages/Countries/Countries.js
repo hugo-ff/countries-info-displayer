@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
+import { Link } from 'react-router-dom';
 import { GET_COUNTRIES, GET_CONTINENTS } from '../../../apollo/queries/queries';
 
 const Countries = () => {
 	const [search, setSearch] = useState('');
+	const [currencyFilter, setCurrencyFilter] = useState([]);
+	const [continentsFilter, setContinentFilter] = useState('');
 
 	const {
 		loading: getCountriesLoading,
@@ -26,6 +29,22 @@ const Countries = () => {
 		countries &&
 		countries
 			.filter(country => country.name.toLowerCase().startsWith(search.toLowerCase()))
+			.filter(country => {
+				if (!currencyFilter.length) return country;
+				const { currency: countryCurrency } = country;
+				if (countryCurrency && countryCurrency.includes(',')) {
+					const currencyArr = countryCurrency.split(',');
+					return currencyFilter.find(currency => currencyArr.includes(currency));
+				}
+				return currencyFilter.find(currency => currency === country.currency);
+			})
+			.filter(country => {
+				const {
+					continent: { name: continentName },
+				} = country;
+				if (!continentsFilter.length) return country;
+				return continentsFilter.find(continent => continent === continentName);
+			})
 			.map(country => {
 				const {
 					name,
@@ -38,12 +57,14 @@ const Countries = () => {
 
 				return (
 					<li key={id} className={`country-card--${id}`}>
-						<p>{emoji}</p>
-						<div>
-							<h2>{name}</h2>
-							<h3>{continentName}</h3>
-							<h4>{currency}</h4>
-						</div>
+						<Link to={`/country/${id}`}>
+							<p>{emoji}</p>
+							<div>
+								<h2>{name}</h2>
+								<h3>{continentName}</h3>
+								<h4>{currency}</h4>
+							</div>
+						</Link>
 					</li>
 				);
 			});
@@ -53,12 +74,21 @@ const Countries = () => {
 	const renderContinents =
 		continents &&
 		continents.map(continent => {
-			const { name, code } = continent;
+			const { name: continentName, code } = continent;
 
 			return (
 				<label htmlFor={code} key={code}>
-					<input type="checkbox" id={code} name="continent" />
-					{name}
+					<input
+						type="checkbox"
+						id={code}
+						name="continent"
+						onChange={e => {
+							if (e.target.checked) return setContinentFilter([...continentsFilter, continentName]);
+							const popFromFilters = continentsFilter.filter(c => c !== continentName);
+							return setContinentFilter(popFromFilters);
+						}}
+					/>
+					{continentName}
 					<span>(numero de paises por continente)</span>
 				</label>
 			);
@@ -69,7 +99,11 @@ const Countries = () => {
 		countries
 			.reduce((accum, current) => {
 				const { currency } = current;
-				return [...accum, currency];
+				if (currency && currency.includes(',')) {
+					const currencyArr = currency.split(',');
+					return [...accum, ...currencyArr];
+				}
+				return accum.includes(currency) ? [...accum] : [...accum, currency];
 			}, [])
 			.filter((value, i, arr) => arr.indexOf(value) === i);
 
@@ -77,7 +111,16 @@ const Countries = () => {
 		currencies &&
 		currencies.map(currency => (
 			<label htmlFor={currency} key={currency}>
-				<input type="checkbox" id={currency} name="currency" />
+				<input
+					type="checkbox"
+					id={currency}
+					name="currency"
+					onChange={e => {
+						if (e.target.checked) return setCurrencyFilter([...currencyFilter, currency]);
+						const popFromFilters = currencyFilter.filter(c => c !== currency);
+						return setCurrencyFilter(popFromFilters);
+					}}
+				/>
 				{currency}
 			</label>
 		));

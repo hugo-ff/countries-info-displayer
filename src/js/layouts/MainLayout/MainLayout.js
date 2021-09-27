@@ -1,18 +1,18 @@
 import { element } from 'prop-types';
 import { ApolloProvider } from '@apollo/client';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import { ChakraProvider } from '@chakra-ui/react';
 import client from 'apollo/client';
 import styles from './styles';
 
 const MainLayout = ({ children }) => (
-	<ApolloProvider client={client}>
-		<BrowserRouter>
+	<HashRouter>
+		<ApolloProvider client={client}>
 			<ChakraProvider>
 				<styles.MainLayout>{children}</styles.MainLayout>
 			</ChakraProvider>
-		</BrowserRouter>
-	</ApolloProvider>
+		</ApolloProvider>
+	</HashRouter>
 );
 
 MainLayout.propTypes = {

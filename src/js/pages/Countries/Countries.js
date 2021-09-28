@@ -15,7 +15,7 @@ import styles from './styles';
 
 const Countries = ({ search }) => {
 	const [currencyFilter, setCurrencyFilter] = useState([]);
-	const [continentFilter, setContinentFilter] = useState('');
+	const [continentFilter, setContinentFilter] = useState([]);
 
 	const { loading, error, data } = useQuery(GET_COUNTRIES);
 
@@ -48,7 +48,7 @@ const Countries = ({ search }) => {
 				if (!validateArray(continentFilter)) return country;
 				return continentFilter.find(continent => continent === continentName);
 			})
-			.map(country => <CountryListItem countryInfo={country} />);
+			.map((country, idx) => <CountryListItem countryInfo={country} key={idx.toString()} />);
 
 	return (
 		<styles.CountriesWrapper>

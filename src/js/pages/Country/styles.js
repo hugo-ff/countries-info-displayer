@@ -8,7 +8,7 @@ const CountryWrapper = styled.div`
 	background-color: #1c1d1f;
 	padding: 3.2rem;
 	color: white;
-	height: 100vh;
+	height: calc(100vh - 72px);
 	width: 100%;
 `;
 

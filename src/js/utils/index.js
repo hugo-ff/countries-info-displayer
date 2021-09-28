@@ -1,6 +1,6 @@
 /**
  * @name validateArray
- * @description return true or false if arg is a valid array and if arg has elements inside
+ * @description return true or false if arg is a valid array and if arg has elements inside.
  * @param {array} array
  * @example validateArray({}) // false
  * @returns bool

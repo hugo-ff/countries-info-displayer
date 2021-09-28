@@ -1,30 +1,32 @@
 import { useState } from 'react';
+import { string } from 'prop-types';
 import { useQuery } from '@apollo/client';
-import { Link } from 'react-router-dom';
+import { UnorderedList, Text } from '@chakra-ui/react';
+import { SearchIcon } from '@chakra-ui/icons';
 import validateArray from 'utils';
-import { GET_COUNTRIES, GET_CONTINENTS } from '../../../apollo/queries/queries';
+import CountryListItem from 'components/CountryListItem';
+import Error from 'components/Error';
+import Loading from 'components/Loading';
+import { connect } from 'react-redux';
+import CurrencyFilter from './components/CurrencyFilter';
+import ContinentFilter from './components/ContinentFilter';
+import { GET_COUNTRIES } from '../../../apollo/queries/queries';
+import styles from './styles';
 
-const Countries = () => {
-	const [search, setSearch] = useState('');
+const Countries = ({ search }) => {
 	const [currencyFilter, setCurrencyFilter] = useState([]);
-	const [continentsFilter, setContinentFilter] = useState('');
+	const [continentFilter, setContinentFilter] = useState([]);
 
-	const {
-		loading: getCountriesLoading,
-		error: getCountriesError,
-		data: getCountriesData,
-	} = useQuery(GET_COUNTRIES);
+	const { loading, error, data } = useQuery(GET_COUNTRIES);
 
-	const {
-		data: getContinentsData,
-		error: getContinentsError,
-		loading: getContinentsLoading,
-	} = useQuery(GET_CONTINENTS);
+	if (error)
+		return (
+			<styles.CountriesWrapper>
+				<Error />
+			</styles.CountriesWrapper>
+		);
 
-	if (getContinentsLoading || getCountriesLoading) return <p>Loading...</p>;
-	if (getCountriesError || getContinentsError) return <p>Error</p>;
-
-	const { countries } = getCountriesData || {};
+	const { countries } = data || {};
 
 	const renderCountries =
 		validateArray(countries) &&
@@ -43,110 +45,62 @@ const Countries = () => {
 				const {
 					continent: { name: continentName },
 				} = country;
-				if (!validateArray(continentsFilter)) return country;
-				return continentsFilter.find(continent => continent === continentName);
+				if (!validateArray(continentFilter)) return country;
+				return continentFilter.find(continent => continent === continentName);
 			})
-			.map(country => {
-				const {
-					code,
-					name,
-					continent: { name: continentName },
-					currency,
-					emoji,
-				} = country;
-
-				const id = name.toLowerCase().replaceAll(' ', '-');
-
-				return (
-					<li key={id} className={`country-card--${id}`}>
-						<Link to={`/country/${code.toLowerCase()}`}>
-							<p>{emoji}</p>
-							<div>
-								<h2>{name}</h2>
-								<h3>{continentName}</h3>
-								<h4>{currency}</h4>
-							</div>
-						</Link>
-					</li>
-				);
-			});
-
-	const { continents } = getContinentsData || {};
-
-	const renderContinents =
-		validateArray(continents) &&
-		continents.map(continent => {
-			const { name: continentName, code } = continent;
-
-			return (
-				<label htmlFor={code} key={code}>
-					<input
-						type="checkbox"
-						id={code}
-						name="continent"
-						onChange={e => {
-							if (e.target.checked) return setContinentFilter([...continentsFilter, continentName]);
-							const popFromFilters = continentsFilter.filter(c => c !== continentName);
-							return setContinentFilter(popFromFilters);
-						}}
-					/>
-					{continentName}
-					<span>(numero de paises por continente)</span>
-				</label>
-			);
-		});
-
-	const currencies =
-		validateArray(countries) &&
-		countries
-			.reduce((accum, current) => {
-				const { currency } = current;
-				if (currency && currency.includes(',')) {
-					const currencyArr = currency.split(',');
-					return [...accum, ...currencyArr];
-				}
-				return accum.includes(currency) ? [...accum] : [...accum, currency];
-			}, [])
-			.filter((value, i, arr) => arr.indexOf(value) === i);
-
-	const renderCurrencyFilter =
-		validateArray(currencies) &&
-		currencies.map(currency => (
-			<label htmlFor={currency} key={currency}>
-				<input
-					type="checkbox"
-					id={currency}
-					name="currency"
-					onChange={e => {
-						if (e.target.checked) return setCurrencyFilter([...currencyFilter, currency]);
-						const popFromFilters =
-							validateArray(currencyFilter) && currencyFilter.filter(c => c !== currency);
-						return setCurrencyFilter(popFromFilters);
-					}}
-				/>
-				{currency}
-			</label>
-		));
+			.map((country, idx) => <CountryListItem countryInfo={country} key={idx.toString()} />);
 
 	return (
-		<>
-			<input
-				type="search"
-				name="search"
-				placeholder="Search"
-				onChange={e => setSearch(e.target.value)}
-				value={search}
-			/>
-			<div>Currency filter</div>
-			<div role="group">{renderCurrencyFilter}</div>
-			<div>Continents</div>
-			<div role="group">{renderContinents}</div>
-			<div>Countries</div>
-			<section>
-				{renderCountries.length ? <ul>{renderCountries}</ul> : <div>Ups! Country not found</div>}
-			</section>
-		</>
+		<styles.CountriesWrapper>
+			{loading ? (
+				<Loading />
+			) : (
+				<>
+					<styles.Container>
+						<styles.FiltersContainer>
+							<styles.FiltersTitle>
+								<styles.FilterIcon />
+								Filters
+							</styles.FiltersTitle>
+							<CurrencyFilter
+								setCurrencyFilter={setCurrencyFilter}
+								currencyFilter={currencyFilter}
+							/>
+							<ContinentFilter
+								setContinentFilter={setContinentFilter}
+								continentFilter={continentFilter}
+							/>
+						</styles.FiltersContainer>
+						<styles.CountriesContainer>
+							{renderCountries.length ? (
+								<UnorderedList spacing="3" style={{ margin: '0 auto' }}>
+									{renderCountries}
+								</UnorderedList>
+							) : (
+								<styles.NotFoundMsg>
+									<SearchIcon w={6} h={6} style={{ marginRight: '10px' }} />
+									<Text fontSize="2xl">Ups! Country not found. Please try again.</Text>
+								</styles.NotFoundMsg>
+							)}
+						</styles.CountriesContainer>
+					</styles.Container>
+				</>
+			)}
+		</styles.CountriesWrapper>
 	);
 };
 
-export default Countries;
+Countries.propTypes = {
+	search: string,
+};
+
+Countries.defaultProps = {
+	search: '',
+};
+
+const mapStateToProps = ({ search }) => ({
+	search: search.search,
+});
+const mapDispatchToProps = () => ({});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Countries);

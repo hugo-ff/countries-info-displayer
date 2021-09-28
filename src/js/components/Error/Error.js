@@ -1,6 +1,6 @@
 import { Container, Heading, Text, Link } from '@chakra-ui/react';
 import { Link as ReactRouterLink } from 'react-router-dom';
-import { WarningIcon, ChevronRightIcon } from '@chakra-ui/icons';
+import { WarningIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import styles from './styles';
 
 const Error = () => (
@@ -13,8 +13,8 @@ const Error = () => (
 				</Heading>
 				<Text fontSize="lg">Please try again!</Text>
 				<Link as={ReactRouterLink} to="/" color="teal.500" style={{ marginTop: '15px' }}>
+					<ChevronLeftIcon w={5} h={5} color="teal.500" />
 					Go to home
-					<ChevronRightIcon w={5} h={5} color="teal.500" />
 				</Link>
 			</styles.ErrorInfo>
 		</styles.Container>
